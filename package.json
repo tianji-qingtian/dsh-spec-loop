@@ -52,6 +52,11 @@
     "@deepseek-ai/dsh-fs-local": "^0.1.0-rc.6",
     "tsdown": "^0.22.14"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "koffi"
+    ]
+  },
   "dsh": {
     "client": {
       "inject": [
