@@ -34,8 +34,8 @@ npm install -g @deepseek-ai/dsh
 ```sh
 # 1. add the bundle to your web profile (pnpm-backed; the built lib/ artifacts
 #    are committed in this repo, so no build script runs at install time).
-#    Prefer a release tag (#v0.1.0); #main tracks the latest commit.
-dsh plugin --profile web add "github:tianji-qingtian/dsh-spec-loop#v0.1.0"
+#    Prefer a release tag (#v0.1.2); #main tracks the latest commit.
+dsh plugin --profile web add "github:tianji-qingtian/dsh-spec-loop#v0.1.2"
 
 # 2. restart the harness with that profile — `add` only edits the profile
 #    files; a running instance does not hot-load the new bundle

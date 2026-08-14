@@ -33,8 +33,8 @@ npm install -g @deepseek-ai/dsh
 
 ```sh
 # 1. 把 bundle 加进 web profile（pnpm 拉取；lib/ 产物已提交在仓库里，
-#    安装时不需要跑构建）。优先用 release tag（#v0.1.0）；#main 跟最新提交。
-dsh plugin --profile web add "github:tianji-qingtian/dsh-spec-loop#v0.1.0"
+#    安装时不需要跑构建）。优先用 release tag（#v0.1.2）；#main 跟最新提交。
+dsh plugin --profile web add "github:tianji-qingtian/dsh-spec-loop#v0.1.2"
 
 # 2. 用该 profile 重启 harness —— add 只改 profile 文件，运行中的实例不会热加载
 dsh --profile web
