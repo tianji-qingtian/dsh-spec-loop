@@ -18,6 +18,13 @@ export const inject = ['slots', 'locale']
 const ID = 'dsh-spec-loop'
 
 const CSS = `
+/* Align the card with the composer card's left edge: same width formula the
+ * shipped queue/todo dock entries use, driven by the shell's theme tokens
+ * (fallbacks keep calc() valid if a token is ever missing). */
+.spec-loop-dock { box-sizing: border-box; flex: none; margin: 0 auto;
+  width: calc(100% - var(--dsh-composer-side-clearance, 0px) * 2 - var(--dsh-composer-dock-inset, 0px) * 2);
+  max-width: calc(var(--dsh-composer-card-max-width, 100vw) - var(--dsh-composer-dock-inset, 0px) * 2);
+  padding: 0 var(--dsh-composer-dock-inset, 0px); }
 .spec-loop { display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
   font-size: 11px; line-height: 1.5; opacity: .92; }
 .spec-loop-glyph { opacity: .85; }
@@ -108,21 +115,26 @@ export function apply(ctx) {
     const change = state ? state.change : null
     const initialized = state ? state.initialized : false
 
+    // The dock zone spans the composer stack; this wrapper carries the same
+    // width formula as the shipped dock entries so the card's text starts at
+    // the composer card's left edge.
+    const wrap = (row) => createElement('div', { className: 'spec-loop-dock' }, row)
+
     if (!change) {
       if (!initialized) {
-        return createElement('div', { className: 'spec-loop' },
+        return wrap(createElement('div', { className: 'spec-loop' },
           createElement('span', { className: 'spec-loop-glyph' }, '📐'),
           createElement('span', { className: 'spec-loop-hint' },
             t('card.init') + ' — '),
           createElement('span', { className: 'spec-loop-next' }, '/spec init'),
-        )
+        ))
       }
-      return createElement('div', { className: 'spec-loop' },
+      return wrap(createElement('div', { className: 'spec-loop' },
         createElement('span', { className: 'spec-loop-glyph' }, '📐'),
         createElement('span', { className: 'spec-loop-hint' },
           t('card.empty') + ' — '),
         createElement('span', { className: 'spec-loop-next' }, '/spec new <goal>'),
-      )
+      ))
     }
 
     const busy = change.status === 'proposing' || change.status === 'implementing'
@@ -134,7 +146,7 @@ export function apply(ctx) {
       : null
     const nextKey = NEXT_FOR_STATUS[change.status]
 
-    return createElement('div', { className: 'spec-loop' },
+    return wrap(createElement('div', { className: 'spec-loop' },
       createElement('span', { className: 'spec-loop-glyph' }, '📐'),
       createElement('span', { className: 'spec-loop-id' }, idLabel),
       createElement('span', {
@@ -146,7 +158,7 @@ export function apply(ctx) {
       }, progress.done + '/' + progress.total) : null,
       nextKey ? createElement('span', { className: 'spec-loop-next' },
         '/spec ' + t(nextKey) + (change.status === 'proposed' ? ' ' + change.id : '')) : null,
-    )
+    ))
   }
 
   ctx.slots.inject('conversation.input.dock', () => ctx.slots.register(

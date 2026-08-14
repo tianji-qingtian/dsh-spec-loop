@@ -1,6 +1,6 @@
 {
   "name": "dsh-spec-loop",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Spec-driven development loop for DeepSeek Harness: a /spec command family drives propose → approve → implement → verify → archive with OpenSpec-compatible change directories, a durable session projection, and a change card in the composer dock.",
   "type": "module",
   "packageManager": "pnpm@11.14.0",
