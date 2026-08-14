@@ -123,6 +123,11 @@ s = applySpecEvent(s, ev('command/run', { commandId: 'c9', name: 'spec', args: '
 s = applySpecEvent(s, ev('command/done', { commandId: 'c9', kind: 'success' }, 20))
 expect('list no transition', s.change.status, 'proposed')
 expect('non-spec command ignored', applySpecEvent(s, ev('command/run', { commandId: 'c10', name: 'plan', args: ' x' }, 21)), s)
+// /spec status is read-only: its command pair must not move the machine
+const s2 = applySpecEvent(s, ev('command/run', { commandId: 'c11', name: 'spec', args: ' status' }, 22))
+const s3 = applySpecEvent(s2, ev('command/done', { commandId: 'c11', kind: 'success' }, 23))
+expect('status no transition', s3.change.status, 'proposed')
+expect('status no pending leak', Object.keys(s3.pending).length, 0)
 
 // ---------------------------------------------------------------------------
 // Handler tests with a mock runtime
@@ -152,7 +157,7 @@ class MemFs {
   }
 }
 
-function makeRuntime({ seed = {}, snapshotState = null, userQuestions = undefined, llmStream = null, models = [] } = {}) {
+function makeRuntime({ seed = {}, snapshotState = null, todosState = undefined, userQuestions = undefined, llmStream = null, models = [] } = {}) {
   const fs = new MemFs()
   for (const [path, value] of Object.entries(seed)) fs.put(path, value.type ?? 'file', value.content ?? '')
   const registered = []
@@ -200,7 +205,7 @@ function makeRuntime({ seed = {}, snapshotState = null, userQuestions = undefine
     },
     sessionProjections: {
       register: (def) => { registered.push(def); return () => {} },
-      snapshot: () => ({ asOfSeq: 0, values: { specLoop: snapshotState } }),
+      snapshot: () => ({ asOfSeq: 0, values: { specLoop: snapshotState, ...(todosState !== undefined ? { todos: todosState } : {}) } }),
     },
     commands: {
       register: (def) => { registered.push(def); return () => {} },
@@ -254,6 +259,49 @@ const signal = () => new AbortController().signal
   expect('new prompt has goal', text.includes('用户登录功能'), true)
   expect('new prompt has marker', text.includes('SPEC_CHANGE_ID: <change-id>'), true)
   expect('new prompt has answers', text.includes('新增能力'), true)
+}
+
+// ---- /spec status: read-only card, three states ----
+{
+  // not initialized
+  const none = makeRuntime({ snapshotState: { initialized: false, change: null } })
+  const { agent: a0 } = makeAgent()
+  let out = await none.commandDef.handler({ rawInput: ' status', agent: a0, signal: signal() })
+  expect('status not-initialized kind', out.kind, 'success')
+  expect('status not-initialized hint', out.text.includes('/spec init'), true)
+
+  // initialized, no change
+  const empty = makeRuntime({ snapshotState: { initialized: true, change: null } })
+  const { agent: a1 } = makeAgent()
+  out = await empty.commandDef.handler({ rawInput: ' status', agent: a1, signal: signal() })
+  expect('status empty hint', out.text.includes('/spec new'), true)
+
+  // active change, english (no CJK in title)
+  const active = makeRuntime({
+    snapshotState: { initialized: true, change: { id: 'add-x', title: 'x', status: 'approved', seq: 1 } },
+    todosState: [
+      { content: 'a', status: 'completed' },
+      { content: 'b', status: 'in_progress' },
+      { content: 'c', status: 'pending' },
+    ],
+  })
+  const { agent: a2 } = makeAgent()
+  out = await active.commandDef.handler({ rawInput: ' status', agent: a2, signal: signal() })
+  expect('status active kind', out.kind, 'success')
+  expect('status has id', out.text.includes('add-x'), true)
+  expect('status en label', out.text.includes('Approved'), true)
+  expect('status progress', out.text.includes('1/3'), true)
+  expect('status next command', out.text.includes('/spec implement add-x'), true)
+
+  // chinese label via CJK title
+  const zh = makeRuntime({
+    snapshotState: { initialized: true, change: { id: 'add-x', title: '用户登录', status: 'verified', seq: 1 } },
+    todosState: [],
+  })
+  const { agent: a3 } = makeAgent()
+  out = await zh.commandDef.handler({ rawInput: ' status', agent: a3, signal: signal() })
+  expect('status zh label', out.text.includes('已验收'), true)
+  expect('status archive hint', out.text.includes('/spec archive add-x'), true)
 }
 
 // ---- /spec validate catches a malformed delta ----

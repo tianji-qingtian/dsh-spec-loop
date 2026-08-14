@@ -8,7 +8,7 @@
 
 ## 特性
 
-- **`/spec` 命令族** — `init` · `new <目标>` · `list` · `show <id>` · `approve <id>` · `implement <id>` · `verify <id> [--deep]` · `archive <id>` · `validate [id]` · `edit <id>`。命令只做流程编排与文件操作，提案/实现内容由 agent 主模型经 `agent.steer` 用完整工具集生成。
+- **`/spec` 命令族** — `init` · `new <目标>` · `status` · `list` · `show <id>` · `approve <id>` · `implement <id>` · `verify <id> [--deep]` · `archive <id>` · `validate [id]` · `edit <id>`。命令只做流程编排与文件操作，提案/实现内容由 agent 主模型经 `agent.steer` 用完整工具集生成。
 - **`/spec new` 澄清提问** — 最多 3 个内置选择题（范围 / 约束 / 验收方式），随目标语言中英切换，走 harness 问答 UI；子代理会话或缺少 UI provider 时自动跳过澄清。
 - **OpenSpec 兼容目录** — `openspec/project.md`、`openspec/specs/<能力>/spec.md`、`openspec/changes/<change-id>/{proposal.md,tasks.md,design.md,verify.md,specs/<cap>/spec.md}`，归档到 `changes/archive/YYYY-MM-DD-<id>/`；规格增量用 `## ADDED|MODIFIED|REMOVED Requirements`，每条 Requirement 至少一个 `#### Scenario:`。
 - **内置校验器** — 与 OpenSpec CLI 同款核心规则（增量节、Requirement、Scenario、change-id 格式），提案生成后自动校验，失败则把修正请求 steer 回 agent（带重试上限）；`approve` 拒绝未通过校验的变更，`archive` 拒绝不存在的变更。
@@ -47,6 +47,7 @@ dsh --profile web
 ```sh
 /spec init                          # 生成 openspec/project.md 与目录结构
 /spec new 用户登录功能               # 澄清 → agent 生成提案/任务/增量 → 自动校验
+/spec status                        # 只读变更卡：当前 change-id、阶段、x/y 进度
 /spec list                          # 活跃变更（任务 x/y）+ 能力规格
 /spec show add-user-login           # 查看提案全文（含 design.md）
 /spec approve add-user-login        # 批准 → 打开实现门
