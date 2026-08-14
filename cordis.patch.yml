@@ -1,0 +1,10 @@
+# dsh-spec-loop profile bundle patch (declared by the `dsh.bundle.patch`
+# manifest field): applied when this package appears in a profile's
+# `dsh.profile.bundles` list.
+#
+# One host row; the browser half is discovered automatically through the
+# package.json `dsh.client` declaration (served at /plugins/dsh-spec-loop/client.js).
+
+- insert:
+    - id: spec-loop
+      name: 'dsh-spec-loop'

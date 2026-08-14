@@ -1,0 +1,66 @@
+{
+  "name": "dsh-spec-loop",
+  "version": "0.1.0",
+  "description": "Spec-driven development loop for DeepSeek Harness: a /spec command family drives propose → approve → implement → verify → archive with OpenSpec-compatible change directories, a durable session projection, and a change card in the composer dock.",
+  "type": "module",
+  "packageManager": "pnpm@11.14.0",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "src",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "check": "tsdown",
+    "test": "node test-host.mjs && node test-real-fs.mjs && node test-compose.mjs"
+  },
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "spec-driven-development",
+    "openspec",
+    "workflow"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-commands": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-fs": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-llm": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-session": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-session-projection": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-shell": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-user-questions": "^0.1.0-rc.6",
+    "react": "^18.2.0"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@deepseek-ai/dsh-fs-local": "^0.1.0-rc.6",
+    "tsdown": "^0.22.14"
+  },
+  "dsh": {
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ],
+      "platform": "web"
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}
